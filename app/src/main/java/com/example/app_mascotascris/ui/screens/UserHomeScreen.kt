@@ -3,11 +3,12 @@ package com.example.app_mascotascris.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -23,26 +24,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.app_mascotascris.R
+import com.example.app_mascotascris.data.local.entities.PetEntity
 import com.example.app_mascotascris.navigation.Screen
 import com.example.app_mascotascris.ui.theme.PrimaryPurple
-import com.example.app_mascotascris.ui.theme.LightGray
+import com.example.app_mascotascris.ui.viewmodel.PetViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserHomeScreen(navController: NavController) {
+fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewModel()) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val pets by viewModel.pets.collectAsState()
+    val selectedFilter by viewModel.selectedFilter.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(
-                drawerContainerColor = Color.White,
-                modifier = Modifier.width(300.dp)
-            ) {
+            ModalDrawerSheet(drawerContainerColor = Color.White) {
                 DrawerHeader()
                 Spacer(modifier = Modifier.height(16.dp))
                 NavigationDrawerItem(
@@ -82,32 +85,19 @@ fun UserHomeScreen(navController: NavController) {
                 TopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Surface(
-                                modifier = Modifier.size(32.dp),
-                                shape = CircleShape,
-                                color = Color.White
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.img),
-                                    contentDescription = "Logo",
-                                    modifier = Modifier.padding(4.dp)
-                                )
+                            Surface(modifier = Modifier.size(32.dp), shape = CircleShape, color = Color.White) {
+                                Image(painter = painterResource(id = R.drawable.img), contentDescription = null, modifier = Modifier.padding(4.dp))
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text("Rescatando Mascotas", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Rescatando Mascotas", color = PrimaryPurple, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         }
                     },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menú", tint = Color.White)
+                            Icon(Icons.Default.Menu, contentDescription = "Menú", tint = PrimaryPurple)
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryPurple),
-                    actions = {
-                        IconButton(onClick = { navController.navigate(Screen.ShoppingCart.route) }) {
-                            Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito", tint = Color.White)
-                        }
-                    }
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
             }
         ) { padding ->
@@ -115,88 +105,71 @@ fun UserHomeScreen(navController: NavController) {
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()
-                    .background(LightGray)
+                    .background(Color(0xFFF8F9FE))
+                    .verticalScroll(rememberScrollState())
             ) {
-                // Header Llamativo con el Logotipo
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-                        .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(PrimaryPurple, Color(0xFF9C27B0))
-                            )
-                        )
+                // Bienvenido Yeison
+                Row(
+                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "¡Hola, Amigo!",
-                                color = Color.White,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                text = "Hoy es un gran día para salvar una vida.",
-                                color = Color.White.copy(alpha = 0.85f),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
+                    Column {
+                        Text(text = "¡Bienvenido, Yeison! 👋", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A237E))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryPurple, modifier = Modifier.size(16.dp))
+                            Text(text = " Popayán, Cauca", fontSize = 14.sp, color = Color.Gray)
                         }
-                        // Imagen de logotipo en el header
-                        Surface(
-                            modifier = Modifier.size(100.dp),
-                            shape = CircleShape,
-                            color = Color.White,
-                            shadowElevation = 4.dp
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.img),
-                                contentDescription = "Logo Header",
-                                modifier = Modifier.padding(12.dp)
-                            )
-                        }
+                    }
+                    Surface(modifier = Modifier.size(56.dp), shape = CircleShape, color = Color.White, shadowElevation = 4.dp, border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryPurple)) {
+                        Image(painter = painterResource(id = R.drawable.img), contentDescription = null, modifier = Modifier.padding(8.dp))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Menú de Acciones Rápidas
-                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    Text(
-                        text = "Servicios Principales",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    val menuItems = listOf(
-                        MenuItem("Adoptar", Icons.Default.Pets, Screen.Adoption.route, Color(0xFFE1BEE7)),
-                        MenuItem("Rescatar", Icons.Default.VolunteerActivism, Screen.Rescues.route, Color(0xFFF3E5F5)),
-                        MenuItem("Tienda", Icons.Default.Store, Screen.ShoppingCart.route, Color(0xFFF3E5F5)),
-                        MenuItem("Suscripciones", Icons.Default.Star, Screen.Subscriptions.route, Color(0xFFE1BEE7))
-                    )
-
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.height(300.dp)
-                    ) {
-                        items(menuItems) { item ->
-                            ElegantMenuCard(item) {
-                                navController.navigate(item.route)
+                // Banner CAMPAÑA 2026
+                Card(
+                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth().height(180.dp),
+                    shape = RoundedCornerShape(32.dp),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().background(Brush.linearGradient(colors = listOf(Color(0xFF9575CD), Color(0xFF7986CB))))) {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            Surface(color = Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)) {
+                                Text(" CAMPAÑA 2026 ", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(4.dp))
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Un hogar lleno de\nronroneos y ladridos", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 26.sp)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = { navController.navigate(Screen.Adoption.route) }, colors = ButtonDefaults.buttonColors(containerColor = Color.White), shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)) {
+                                Text("Ver más", color = PrimaryPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
                 }
+
+                // Busca un nuevo amigo
+                SectionHeader(title = "Busca un nuevo amigo", onSeeAll = {})
+                LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    val categories = listOf(
+                        CategoryItem("Todos", Icons.Default.GridView),
+                        CategoryItem("Perros", Icons.Default.Pets),
+                        CategoryItem("Gatos", Icons.Default.Face),
+                        CategoryItem("Otros", Icons.Default.AutoAwesome),
+                        CategoryItem("Suministros", Icons.Default.Storefront)
+                    )
+                    items(categories) { cat ->
+                        CategoryCard(cat, isSelected = selectedFilter == cat.name) { viewModel.setFilter(cat.name) }
+                    }
+                }
+
+                // Mascotas esperando por ti
+                SectionHeader(title = "Mascotas esperando por ti", onSeeAll = {})
+                LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(pets) { pet ->
+                        FeaturedPetCard(pet)
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
@@ -235,44 +208,48 @@ fun DrawerHeader() {
     }
 }
 
-data class MenuItem(val title: String, val icon: ImageVector, val route: String, val bgColor: Color)
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ElegantMenuCard(item: MenuItem, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(130.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+fun SectionHeader(title: String, onSeeAll: () -> Unit) {
+    Row(modifier = Modifier.padding(20.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(text = title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        TextButton(onClick = onSeeAll) { Text("Ver todas", color = PrimaryPurple, fontWeight = FontWeight.Bold) }
+    }
+}
+
+data class CategoryItem(val name: String, val icon: ImageVector)
+
+@Composable
+fun CategoryCard(cat: CategoryItem, isSelected: Boolean, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            onClick = onClick,
+            modifier = Modifier.size(70.dp),
+            shape = RoundedCornerShape(20.dp),
+            color = if (isSelected) PrimaryPurple else Color.White,
+            shadowElevation = 2.dp
         ) {
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = item.bgColor
-            ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = null,
-                    tint = PrimaryPurple,
-                    modifier = Modifier.padding(12.dp)
-                )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(cat.icon, contentDescription = null, tint = if (isSelected) Color.White else PrimaryPurple, modifier = Modifier.size(28.dp))
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.DarkGray
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = cat.name, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (isSelected) PrimaryPurple else Color.Gray)
+    }
+}
+
+@Composable
+fun FeaturedPetCard(pet: PetEntity) {
+    Card(modifier = Modifier.width(240.dp).height(200.dp), shape = RoundedCornerShape(24.dp), elevation = CardDefaults.cardElevation(2.dp)) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = pet.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
+            Surface(modifier = Modifier.align(Alignment.TopEnd).padding(12.dp).size(32.dp), shape = CircleShape, color = Color.White) {
+                Icon(Icons.Default.Female, contentDescription = null, tint = Color(0xFFF06292), modifier = Modifier.size(16.dp).padding(6.dp))
+            }
         }
     }
 }

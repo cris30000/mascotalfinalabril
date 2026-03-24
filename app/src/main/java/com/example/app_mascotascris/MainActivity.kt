@@ -5,12 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.app_mascotascris.navigation.Screen
 import com.example.app_mascotascris.ui.screens.*
 import com.example.app_mascotascris.ui.theme.App_mascotascrisTheme
+import com.example.app_mascotascris.ui.viewmodel.PetViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +29,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    // Creamos el ViewModel aquí para compartirlo si es necesario y asegurar su ciclo de vida
+    val petViewModel: PetViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -42,11 +46,11 @@ fun AppNavigation() {
                 onLoginSuccess = { isAdmin ->
                     if (isAdmin) {
                         navController.navigate(Screen.HomeAdmin.route) {
-                            popUpTo(Screen.Welcome.route) { inclusive = true }
+                            popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     } else {
                         navController.navigate(Screen.HomeUser.route) {
-                            popUpTo(Screen.Welcome.route) { inclusive = true }
+                            popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     }
                 },
@@ -60,10 +64,18 @@ fun AppNavigation() {
                 navController.navigate(Screen.Login.route)
             })
         }
-        composable(Screen.HomeUser.route) { UserHomeScreen(navController) }
-        composable(Screen.HomeAdmin.route) { AdminHomeScreen(navController) }
-        composable(Screen.AddPet.route) { AddPetScreen(navController) }
-        composable(Screen.Adoption.route) { AdoptionScreen(navController) }
+        composable(Screen.HomeUser.route) { 
+            UserHomeScreen(navController, petViewModel) 
+        }
+        composable(Screen.HomeAdmin.route) { 
+            AdminHomeScreen(navController) 
+        }
+        composable(Screen.AddPet.route) { 
+            AddPetScreen(navController, petViewModel) 
+        }
+        composable(Screen.Adoption.route) { 
+            AdoptionScreen(navController, petViewModel) 
+        }
         composable(Screen.Rescues.route) { RescuesScreen(navController) }
         composable(Screen.Rescuers.route) { RescuersScreen(navController) }
         composable(Screen.Forms.route) { FormsScreen(navController) }
