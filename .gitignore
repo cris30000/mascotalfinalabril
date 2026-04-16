@@ -1,3 +1,4 @@
+# Archivos de compilación de Android Studio
 *.iml
 .gradle
 /local.properties
@@ -13,3 +14,18 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Archivos de la carpeta app
+/app/build
+
+# Archivos de Kotlin
+.kotlin
+
+# Secretos y llaves (Importante para seguridad)
+*.jks
+*.keystore
+google-services.json
+
+# Archivos temporales
+*.tmp
+*.log

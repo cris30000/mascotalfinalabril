@@ -41,7 +41,7 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
         _selectedFilter.value = filter
     }
 
-    fun addPet(name: String, type: String, age: String, description: String) {
+    fun addPet(name: String, type: String, age: String, description: String, imageUrl: String? = null) {
         viewModelScope.launch {
             repository.insertPet(
                 PetEntity(
@@ -49,7 +49,8 @@ class PetViewModel(application: Application) : AndroidViewModel(application) {
                     type = type,
                     age = age,
                     description = description,
-                    status = "Disponible"
+                    status = "Disponible",
+                    imageUrl = imageUrl
                 )
             )
         }
