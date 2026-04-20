@@ -1,8 +1,8 @@
 package com.example.app_mascotascris.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -60,7 +60,7 @@ fun AdoptionScreen(navController: NavController, viewModel: PetViewModel = viewM
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Banner "¿Sabías que...?" (Estilo idéntico a la imagen)
+            // Banner "¿Sabías que...?"
             Card(
                 modifier = Modifier
                     .padding(16.dp)
@@ -182,14 +182,16 @@ fun AdoptionScreen(navController: NavController, viewModel: PetViewModel = viewM
                 }
             }
 
-            // Lista de Mascotas (Horizontal para no chocar con el scroll vertical)
+            // Lista de Mascotas (Horizontal)
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.height(240.dp)
             ) {
                 items(pets) { pet ->
-                    PetAdoptionCard(pet)
+                    PetAdoptionCard(pet) {
+                        navController.navigate(Screen.PetDetail.createRoute(pet.id))
+                    }
                 }
             }
             
@@ -199,40 +201,33 @@ fun AdoptionScreen(navController: NavController, viewModel: PetViewModel = viewM
 }
 
 @Composable
-fun PetAdoptionCard(pet: PetEntity) {
+fun PetAdoptionCard(pet: PetEntity, onClick: () -> Unit) {
     Card(
+        onClick = onClick,
         modifier = Modifier.width(160.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = LightGray.copy(alpha = 0.5f))
     ) {
         Column {
-            // Imagen de la mascota (Usamos AsyncImage de Coil)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
                     .background(Color.LightGray)
             ) {
-                if (pet.imageUrl != null) {
-                    AsyncImage(
-                        model = pet.imageUrl,
-                        contentDescription = pet.name,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.Pets,
-                        contentDescription = null,
-                        modifier = Modifier.align(Alignment.Center).size(40.dp),
-                        tint = Color.White
-                    )
-                }
+                AsyncImage(
+                    model = pet.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
+                    contentDescription = pet.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(pet.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(pet.type, style = MaterialTheme.typography.bodySmall, color = PrimaryPurple)
                 Text(pet.age, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("Ver detalles", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryPurple)
             }
         }
     }

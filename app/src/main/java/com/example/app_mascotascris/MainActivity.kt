@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.app_mascotascris.navigation.Screen
 import com.example.app_mascotascris.ui.screens.*
 import com.example.app_mascotascris.ui.theme.App_mascotascrisTheme
@@ -75,6 +77,13 @@ fun AppNavigation() {
         }
         composable(Screen.Adoption.route) { 
             AdoptionScreen(navController, petViewModel) 
+        }
+        composable(
+            route = Screen.PetDetail.route,
+            arguments = listOf(navArgument("petId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val petId = backStackEntry.arguments?.getInt("petId") ?: 0
+            PetDetailScreen(navController, petId, petViewModel)
         }
         composable(Screen.Rescues.route) { RescuesScreen(navController) }
         composable(Screen.Rescuers.route) { RescuersScreen(navController) }

@@ -33,8 +33,11 @@ import com.example.app_mascotascris.ui.viewmodel.PetViewModel
 fun AddPetScreen(navController: NavController, viewModel: PetViewModel = viewModel()) {
     var name by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("Perro") }
+    var breed by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var hasVaccines by remember { mutableStateOf(false) }
+    var shelter by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     
     val types = listOf("Perro", "Gato", "Conejo", "Aves")
@@ -124,12 +127,40 @@ fun AddPetScreen(navController: NavController, viewModel: PetViewModel = viewMod
             }
 
             OutlinedTextField(
+                value = breed,
+                onValueChange = { breed = it },
+                label = { Text("Raza") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
                 value = age,
                 onValueChange = { age = it },
                 label = { Text("Edad (ej: 2 años)") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
+
+            OutlinedTextField(
+                value = shelter,
+                onValueChange = { shelter = it },
+                label = { Text("Refugio de destino") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().clickable { hasVaccines = !hasVaccines }
+            ) {
+                Checkbox(
+                    checked = hasVaccines,
+                    onCheckedChange = { hasVaccines = it },
+                    colors = CheckboxDefaults.colors(checkedColor = PrimaryPurple)
+                )
+                Text("¿Tiene vacunas al día?", fontWeight = FontWeight.Medium)
+            }
 
             OutlinedTextField(
                 value = description,
@@ -144,8 +175,17 @@ fun AddPetScreen(navController: NavController, viewModel: PetViewModel = viewMod
 
             Button(
                 onClick = {
-                    if (name.isNotBlank() && age.isNotBlank()) {
-                        viewModel.addPet(name, type, age, description, imageUri?.toString())
+                    if (name.isNotBlank() && age.isNotBlank() && breed.isNotBlank() && shelter.isNotBlank()) {
+                        viewModel.addPet(
+                            name = name, 
+                            type = type, 
+                            breed = breed, 
+                            age = age, 
+                            description = description, 
+                            hasVaccines = hasVaccines, 
+                            shelter = shelter, 
+                            imageUrl = imageUri?.toString()
+                        )
                         navController.popBackStack()
                     }
                 },

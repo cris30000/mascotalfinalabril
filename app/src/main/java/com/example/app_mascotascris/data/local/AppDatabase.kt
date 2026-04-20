@@ -5,11 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.app_mascotascris.data.local.dao.PetDao
+import com.example.app_mascotascris.data.local.dao.AdoptionFormDao
 import com.example.app_mascotascris.data.local.entities.PetEntity
+import com.example.app_mascotascris.data.local.entities.AdoptionFormEntity
 
-@Database(entities = [PetEntity::class], version = 1, exportSchema = false)
+@Database(entities = [PetEntity::class, AdoptionFormEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun petDao(): PetDao
+    abstract fun adoptionFormDao(): AdoptionFormDao
 
     companion object {
         @Volatile
@@ -21,7 +24,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "mascotas_db"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

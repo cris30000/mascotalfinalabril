@@ -2,6 +2,7 @@ package com.example.app_mascotascris.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -54,6 +55,30 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                     selected = false,
                     onClick = { scope.launch { drawerState.close() } },
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Registrar Mascota") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(Screen.AddPet.route)
+                        }
+                    },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Donaciones y Membresías") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(Screen.Subscriptions.route)
+                        }
+                    },
+                    icon = { Icon(Icons.Default.VolunteerActivism, contentDescription = null) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
@@ -111,6 +136,15 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
+            },
+            floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate(Screen.AddPet.route) },
+                    containerColor = PrimaryPurple,
+                    contentColor = Color.White,
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Registrar Mascota") }
+                )
             }
         ) { padding ->
             Column(
@@ -127,7 +161,7 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(text = "¡Bienvenido, Yeison! 👋", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A237E))
+                        Text(text = "¡Bienvenido, Amigo! 👋", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A237E))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryPurple, modifier = Modifier.size(16.dp))
                             Text(text = " Popayán, Cauca", fontSize = 14.sp, color = Color.Gray)
@@ -201,9 +235,9 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                 LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     val categories = listOf(
                         CategoryItem("Todos", Icons.Default.GridView),
-                        CategoryItem("Perros", Icons.Default.Pets),
-                        CategoryItem("Gatos", Icons.Default.Face),
-                        CategoryItem("Otros", Icons.Default.AutoAwesome),
+                        CategoryItem("Perro", Icons.Default.Pets),
+                        CategoryItem("Gato", Icons.Default.Face),
+                        CategoryItem("Conejo", Icons.Default.AutoAwesome),
                         CategoryItem("Suministros", Icons.Default.Storefront)
                     )
                     items(categories) { cat ->
@@ -214,9 +248,40 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                 SectionHeader(title = "Mascotas esperando por ti", onSeeAll = { navController.navigate(Screen.Adoption.route) })
                 LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(pets) { pet ->
-                        FeaturedPetCard(pet)
+                        FeaturedPetCard(pet) {
+                            navController.navigate(Screen.PetDetail.createRoute(pet.id))
+                        }
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Nueva Sección de Donación Rápida en el Home
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .fillMaxWidth()
+                        .clickable { navController.navigate(Screen.Subscriptions.route) },
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE1BEE7).copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(color = PrimaryPurple, shape = CircleShape, modifier = Modifier.size(40.dp)) {
+                            Icon(Icons.Default.VolunteerActivism, contentDescription = null, tint = Color.White, modifier = Modifier.padding(10.dp))
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text("Apoya nuestra causa", fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text("Membresías y donaciones", fontSize = 12.sp, color = Color.Gray)
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = PrimaryPurple)
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -273,17 +338,40 @@ fun CategoryCard(cat: CategoryItem, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun FeaturedPetCard(pet: PetEntity) {
-    Card(modifier = Modifier.width(220.dp).height(180.dp), shape = RoundedCornerShape(24.dp), elevation = CardDefaults.cardElevation(2.dp)) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = pet.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-            Surface(modifier = Modifier.align(Alignment.TopEnd).padding(12.dp).size(30.dp), shape = CircleShape, color = Color.White) {
-                Icon(Icons.Default.Female, contentDescription = null, tint = Color(0xFFF06292), modifier = Modifier.size(14.dp).padding(6.dp))
+fun FeaturedPetCard(pet: PetEntity, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.width(220.dp).height(240.dp), 
+        shape = RoundedCornerShape(24.dp), 
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column {
+            Box(modifier = Modifier.fillMaxWidth().height(160.dp)) {
+                AsyncImage(
+                    model = pet.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Surface(modifier = Modifier.align(Alignment.TopEnd).padding(12.dp).size(30.dp), shape = CircleShape, color = Color.White) {
+                    Icon(Icons.Default.FavoriteBorder, contentDescription = null, tint = PrimaryPurple, modifier = Modifier.size(14.dp).padding(6.dp))
+                }
+            }
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(text = pet.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryPurple, modifier = Modifier.size(12.dp))
+                    Text(text = " ${pet.shelter}", fontSize = 11.sp, color = Color.Gray)
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Ver detalles", 
+                    color = PrimaryPurple, 
+                    fontSize = 12.sp, 
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.End)
+                )
             }
         }
     }
