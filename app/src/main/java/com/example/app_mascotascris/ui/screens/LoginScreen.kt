@@ -1,5 +1,6 @@
 package com.example.app_mascotascris.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -25,18 +27,23 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_mascotascris.R
 import com.example.app_mascotascris.ui.theme.PrimaryPurple
+import com.example.app_mascotascris.ui.viewmodel.PetViewModel
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: (isAdmin: Boolean) -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    viewModel: PetViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var userRole by remember { mutableStateOf("Usuario") } // "Usuario" o "Admin"
+    
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -161,7 +168,26 @@ fun LoginScreen(
                     // Botón de Ingresar
                     Button(
                         onClick = { 
-                            onLoginSuccess(userRole == "Admin" || email.contains("admin"))
+                            if (email.isNotBlank() && password.isNotBlank()) {
+                                if (userRole == "Admin") {
+                                    // Lógica simple para admin por ahora, o podrías tener una tabla de admins
+                                    if (email == "admin@mascotas.com" && password == "admin123") {
+                                        onLoginSuccess(true)
+                                    } else {
+                                        Toast.makeText(context, "Credenciales de Admin incorrectas", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    viewModel.loginUser(email, password) { success ->
+                                        if (success) {
+                                            onLoginSuccess(false)
+                                        } else {
+                                            Toast.makeText(context, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()

@@ -216,16 +216,16 @@ fun PetAdoptionCard(pet: PetEntity, onClick: () -> Unit) {
                     .background(Color.LightGray)
             ) {
                 AsyncImage(
-                    model = pet.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
-                    contentDescription = pet.name,
+                    model = pet.foto_principal ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
+                    contentDescription = pet.nombre_mascota,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
             Column(modifier = Modifier.padding(12.dp)) {
-                Text(pet.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(pet.type, style = MaterialTheme.typography.bodySmall, color = PrimaryPurple)
-                Text(pet.age, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(pet.nombre_mascota, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(pet.especie, style = MaterialTheme.typography.bodySmall, color = PrimaryPurple)
+                Text(pet.edad_aprox, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Ver detalles", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryPurple)
             }

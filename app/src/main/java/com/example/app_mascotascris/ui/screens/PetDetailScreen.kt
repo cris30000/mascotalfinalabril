@@ -55,7 +55,7 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                 // Imagen de la mascota
                 Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
                     AsyncImage(
-                        model = petData.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
+                        model = petData.foto_principal ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -69,7 +69,7 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = petData.status,
+                            text = petData.estado,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             fontWeight = FontWeight.Bold
@@ -85,13 +85,13 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                     ) {
                         Column {
                             Text(
-                                text = petData.name,
+                                text = petData.nombre_mascota,
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color(0xFF1A237E)
                             )
                             Text(
-                                text = "${petData.type} • ${petData.breed}",
+                                text = "${petData.especie} • ${petData.genero}",
                                 fontSize = 16.sp,
                                 color = Color.Gray
                             )
@@ -102,7 +102,7 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                             shape = CircleShape
                         ) {
                             Icon(
-                                imageVector = if (petData.type == "Perro") Icons.Default.Pets else Icons.Default.Face,
+                                imageVector = if (petData.especie == "Perro") Icons.Default.Pets else Icons.Default.Face,
                                 contentDescription = null,
                                 tint = PrimaryPurple,
                                 modifier = Modifier.padding(12.dp)
@@ -117,13 +117,13 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        InfoCard(modifier = Modifier.weight(1f), label = "Edad", value = petData.age, icon = Icons.Default.Cake)
-                        InfoCard(modifier = Modifier.weight(1f), label = "Vacunas", value = if (petData.hasVaccines) "Al día" else "Pendiente", icon = Icons.Default.Verified)
+                        InfoCard(modifier = Modifier.weight(1f), label = "Edad", value = petData.edad_aprox, icon = Icons.Default.Cake)
+                        InfoCard(modifier = Modifier.weight(1f), label = "Niños", value = if (petData.apto_con_ninos) "Apto" else "No apto", icon = Icons.Default.ChildCare)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Refugio
+                    // Rescate
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5)),
@@ -133,11 +133,11 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                             modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.HomeWork, contentDescription = null, tint = PrimaryPurple)
+                            Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryPurple)
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
-                                Text("Refugio actual:", fontSize = 12.sp, color = Color.Gray)
-                                Text(petData.shelter, fontWeight = FontWeight.Bold, color = PrimaryPurple)
+                                Text("Lugar de rescate:", fontSize = 12.sp, color = Color.Gray)
+                                Text(petData.lugar_rescate, fontWeight = FontWeight.Bold, color = PrimaryPurple)
                             }
                         }
                     }
@@ -145,18 +145,33 @@ fun PetDetailScreen(navController: NavController, petId: Int, viewModel: PetView
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Sobre ${petData.name}",
+                        text = "Sobre ${petData.nombre_mascota}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = petData.description,
+                        text = petData.descripcion,
                         fontSize = 15.sp,
                         color = Color.DarkGray,
                         lineHeight = 22.sp
                     )
+                    
+                    if (!petData.condiciones_especiales.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Condiciones Especiales",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = petData.condiciones_especiales ?: "",
+                            fontSize = 15.sp,
+                            color = Color.DarkGray
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(32.dp))
 

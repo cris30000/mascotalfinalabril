@@ -1,5 +1,6 @@
 package com.example.app_mascotascris.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,21 +19,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_mascotascris.R
 import com.example.app_mascotascris.ui.theme.PrimaryPurple
+import com.example.app_mascotascris.ui.viewmodel.PetViewModel
 
 @Composable
-fun RegisterScreen(onRegisterSuccess: () -> Unit) {
+fun RegisterScreen(onRegisterSuccess: () -> Unit, viewModel: PetViewModel = viewModel()) {
     var name by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -51,7 +56,7 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logotipo circular (Mismo estilo que Login)
+            // Logotipo circular
             Surface(
                 modifier = Modifier
                     .size(100.dp)
@@ -84,7 +89,7 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Card contenedora transparente (Glassmorphism)
+            // Card contenedora transparente
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,15 +103,20 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Campo de Nombre
                     LoginTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = "Nombre Completo",
+                        placeholder = "Nombres",
                         icon = Icons.Default.Person
                     )
+                    
+                    LoginTextField(
+                        value = lastName,
+                        onValueChange = { lastName = it },
+                        placeholder = "Apellidos",
+                        icon = Icons.Default.Badge
+                    )
 
-                    // Campo de Correo
                     LoginTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -114,7 +124,6 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
                         icon = Icons.Default.Email
                     )
 
-                    // Campo de Contraseña
                     LoginTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -125,7 +134,6 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
                         onVisibilityChange = { isPasswordVisible = !isPasswordVisible }
                     )
 
-                    // Campo de Confirmar Contraseña
                     LoginTextField(
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it },
@@ -138,9 +146,17 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón de Registro
                     Button(
-                        onClick = onRegisterSuccess,
+                        onClick = {
+                            if (password == confirmPassword && email.isNotBlank() && name.isNotBlank()) {
+                                viewModel.registerUser(name, lastName, email, password) {
+                                    Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                                    onRegisterSuccess()
+                                }
+                            } else {
+                                Toast.makeText(context, "Las contraseñas no coinciden o hay campos vacíos", Toast.LENGTH_SHORT).show()
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -160,7 +176,7 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            TextButton(onClick = { /* Navegar de vuelta al Login */ }) {
+            TextButton(onClick = onRegisterSuccess) {
                 Row {
                     Text("¿Ya tienes cuenta? ", color = Color.White.copy(alpha = 0.8f))
                     Text("Inicia sesión", color = Color.White, fontWeight = FontWeight.Bold)

@@ -92,5 +92,6 @@ fun AppNavigation() {
         composable(Screen.Subscriptions.route) { SubscriptionsScreen(navController) }
         composable(Screen.Events.route) { PlaceholderScreen(navController, "Gestión de Eventos") }
         composable(Screen.Reports.route) { PlaceholderScreen(navController, "Reportes de Gestión") }
+        composable(Screen.Profile.route) { ProfileScreen(navController) }
     }
 }

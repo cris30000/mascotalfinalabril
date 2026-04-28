@@ -48,13 +48,35 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(drawerContainerColor = Color.White) {
-                DrawerHeader()
+                DrawerHeader(onProfileClick = {
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(Screen.Profile.route)
+                    }
+                })
                 Spacer(modifier = Modifier.height(16.dp))
                 NavigationDrawerItem(
                     label = { Text("Mi Perfil") },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() } },
+                    onClick = { 
+                        scope.launch { 
+                            drawerState.close() 
+                            navController.navigate(Screen.Profile.route)
+                        } 
+                    },
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Adopciones") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate(Screen.Adoption.route)
+                        }
+                    },
+                    icon = { Icon(Icons.Default.Pets, contentDescription = null) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
@@ -79,13 +101,6 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                         }
                     },
                     icon = { Icon(Icons.Default.VolunteerActivism, contentDescription = null) },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Mis Adopciones") },
-                    selected = false,
-                    onClick = { scope.launch { drawerState.close() } },
-                    icon = { Icon(Icons.Default.Pets, contentDescription = null) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
@@ -137,13 +152,41 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
             },
+            bottomBar = {
+                NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                        label = { Text("Inicio") },
+                        selected = true,
+                        onClick = { }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Pets, contentDescription = null) },
+                        label = { Text("Adopción") },
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Adoption.route) }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Assignment, contentDescription = null) },
+                        label = { Text("Formularios") },
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Forms.route) }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                        label = { Text("Perfil") },
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Profile.route) }
+                    )
+                }
+            },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
                     onClick = { navController.navigate(Screen.AddPet.route) },
                     containerColor = PrimaryPurple,
                     contentColor = Color.White,
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text("Registrar Mascota") }
+                    text = { Text("Registrar") }
                 )
             }
         ) { padding ->
@@ -167,7 +210,13 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                             Text(text = " Popayán, Cauca", fontSize = 14.sp, color = Color.Gray)
                         }
                     }
-                    Surface(modifier = Modifier.size(50.dp), shape = CircleShape, color = Color.White, shadowElevation = 4.dp, border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryPurple)) {
+                    Surface(
+                        modifier = Modifier.size(50.dp).clickable { navController.navigate(Screen.Profile.route) }, 
+                        shape = CircleShape, 
+                        color = Color.White, 
+                        shadowElevation = 4.dp, 
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryPurple)
+                    ) {
                         Image(painter = painterResource(id = R.drawable.img), contentDescription = null, modifier = Modifier.padding(6.dp))
                     }
                 }
@@ -246,7 +295,7 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
                 }
 
                 SectionHeader(title = "Mascotas esperando por ti", onSeeAll = { navController.navigate(Screen.Adoption.route) })
-                LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(pets) { pet ->
                         FeaturedPetCard(pet) {
                             navController.navigate(Screen.PetDetail.createRoute(pet.id))
@@ -289,12 +338,13 @@ fun UserHomeScreen(navController: NavController, viewModel: PetViewModel = viewM
 }
 
 @Composable
-fun DrawerHeader() {
+fun DrawerHeader(onProfileClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .background(Brush.horizontalGradient(colors = listOf(PrimaryPurple, Color(0xFF9C27B0)))),
+            .background(Brush.horizontalGradient(colors = listOf(PrimaryPurple, Color(0xFF9C27B0))))
+            .clickable { onProfileClick() },
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -349,7 +399,7 @@ fun FeaturedPetCard(pet: PetEntity, onClick: () -> Unit) {
         Column {
             Box(modifier = Modifier.fillMaxWidth().height(160.dp)) {
                 AsyncImage(
-                    model = pet.imageUrl ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
+                    model = pet.foto_principal ?: "https://images.unsplash.com/photo-1552053831-71594a27632d",
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -359,10 +409,10 @@ fun FeaturedPetCard(pet: PetEntity, onClick: () -> Unit) {
                 }
             }
             Column(modifier = Modifier.padding(12.dp)) {
-                Text(text = pet.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                Text(text = pet.nombre_mascota, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryPurple, modifier = Modifier.size(12.dp))
-                    Text(text = " ${pet.shelter}", fontSize = 11.sp, color = Color.Gray)
+                    Text(text = " ${pet.lugar_rescate}", fontSize = 11.sp, color = Color.Gray)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

@@ -6,13 +6,17 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.app_mascotascris.data.local.dao.PetDao
 import com.example.app_mascotascris.data.local.dao.AdoptionFormDao
+import com.example.app_mascotascris.data.local.dao.UserDao
 import com.example.app_mascotascris.data.local.entities.PetEntity
 import com.example.app_mascotascris.data.local.entities.AdoptionFormEntity
+import com.example.app_mascotascris.data.local.entities.AdoptionEntity
+import com.example.app_mascotascris.data.local.entities.UserEntity
 
-@Database(entities = [PetEntity::class, AdoptionFormEntity::class], version = 3, exportSchema = false)
+@Database(entities = [PetEntity::class, AdoptionFormEntity::class, AdoptionEntity::class, UserEntity::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun petDao(): PetDao
     abstract fun adoptionFormDao(): AdoptionFormDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
